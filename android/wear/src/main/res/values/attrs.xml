@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="wearColorPrimary" format="color" />
+    <attr name="wearColorOnPrimary" format="color" />
+    <attr name="wearColorContainer" format="color" />
+    <attr name="wearColorSurface" format="color" />
+    <attr name="wearColorText" format="color" />
+    <attr name="wearColorSecondaryText" format="color" />
+</resources>

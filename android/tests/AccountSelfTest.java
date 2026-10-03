@@ -49,6 +49,17 @@ public final class AccountSelfTest {
         check(restored.tileColorLow == 30 && restored.tileColorSufficient == 70, "bands round trip");
         check(changed.equals(restored) && changed.hashCode() == restored.hashCode(), "band equality");
         check(!changed.equals(legacy), "changed color bands are different settings");
+        check(!legacy.watchDynamicColors, "old settings preserve default watch colors");
+        WearSettingsState dynamic = WearSettingsState.fromJson(
+                changed.toJson().put("watch_dynamic_colors", true));
+        check(dynamic.watchDynamicColors && dynamic.tileColorLow == 30
+                && dynamic.tileColorSufficient == 70, "independent watch theme retains bands");
+        check(!changed.equals(dynamic), "watch theme participates in settings equality");
+        check(dynamic.equals(WearSettingsState.fromJson(dynamic.toJson())), "watch theme round trip");
+        WearSettingsState disabled = WearSettingsState.fromJson(
+                dynamic.toJson().put("watch_dynamic_colors", false));
+        check(!disabled.watchDynamicColors && disabled.tileColorLow == 30
+                && disabled.tileColorSufficient == 70, "disabling theme retains thresholds");
     }
 
     private static void tileBindings() {

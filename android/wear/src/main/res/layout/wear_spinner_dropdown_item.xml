@@ -11,5 +11,5 @@
     android:maxLines="1"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
-    android:textColor="@color/codex_text"
+    android:textColor="?attr/wearColorText"
     android:textSize="15sp" />

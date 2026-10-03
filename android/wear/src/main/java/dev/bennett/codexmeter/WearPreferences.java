@@ -34,6 +34,7 @@ public final class WearPreferences {
     private static final String KEY_STATUS_ERROR = "status_error";
     private static final String KEY_STATUS_LAST_SUCCESS = "status_last_success";
     private static final String KEY_SYNCED = "synced";
+    private static final String KEY_DYNAMIC_COLORS = "watch_dynamic_colors";
     private static final String KEY_TILE_COLOR_LOW = "tile_color_low";
     private static final String KEY_TILE_COLOR_SUFFICIENT = "tile_color_sufficient";
     private static final String KEY_THRESHOLD = "threshold";
@@ -152,7 +153,8 @@ public final class WearPreferences {
                 prefs.getString(KEY_USAGE_PACE_SENSITIVITY, UsagePace.BALANCED),
                 prefs.getBoolean(KEY_ACCELERATED_START, false),
                 prefs.getInt(KEY_TILE_COLOR_LOW, QuotaColorBands.DEFAULT_LOW),
-                prefs.getInt(KEY_TILE_COLOR_SUFFICIENT, QuotaColorBands.DEFAULT_SUFFICIENT));
+                prefs.getInt(KEY_TILE_COLOR_SUFFICIENT, QuotaColorBands.DEFAULT_SUFFICIENT),
+                prefs.getBoolean(KEY_DYNAMIC_COLORS, false));
     }
 
     public static boolean applyRemoteSettings(Context context, WearSettingsState remote) {
@@ -349,6 +351,7 @@ public final class WearPreferences {
         QuotaColorBands bands = local ? tileColorBands(context)
                 : new QuotaColorBands(state.tileColorLow, state.tileColorSufficient);
         SharedPreferences.Editor editor = prefs(context).edit()
+                .putBoolean(KEY_DYNAMIC_COLORS, local ? dynamicColorsEnabled(context) : state.watchDynamicColors)
                 .putInt(KEY_TILE_COLOR_LOW, bands.low)
                 .putInt(KEY_TILE_COLOR_SUFFICIENT, bands.sufficient)
                 .putString(KEY_DISPLAY_MODE, state.displayMode)
@@ -367,6 +370,10 @@ public final class WearPreferences {
         }
         editor.apply();
         WearSurfaceUpdater.requestAll(context);
+    }
+
+    public static boolean dynamicColorsEnabled(Context context) {
+        return prefs(context).getBoolean(KEY_DYNAMIC_COLORS, false);
     }
 
     public static QuotaColorBands tileColorBands(Context context) {

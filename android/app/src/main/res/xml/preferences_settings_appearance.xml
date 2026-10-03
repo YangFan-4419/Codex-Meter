@@ -19,11 +19,14 @@
             android:title="Material You" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Watch Tile progress colors">
+    <PreferenceCategory android:title="Watch appearance">
+        <SwitchPreferenceCompat android:key="watch_dynamic_colors_ui"
+            android:title="Watch dynamic colors"
+            android:summary="Use the watch’s local theme independently of phone Material You" />
         <EditTextPreference android:key="tile_color_low_ui"
-            android:title="Red below" android:dialogTitle="Red below (%)" />
+            android:title="Low allowance band limit" android:dialogTitle="Low allowance band limit (%)" />
         <EditTextPreference android:key="tile_color_sufficient_ui"
-            android:title="Blue-purple from" android:dialogTitle="Blue-purple from (%)" />
+            android:title="Medium allowance band limit" android:dialogTitle="Medium allowance band limit (%)" />
         <Preference android:key="tile_color_summary_ui" android:selectable="false"
             android:title="Based on remaining allowance" />
     </PreferenceCategory>

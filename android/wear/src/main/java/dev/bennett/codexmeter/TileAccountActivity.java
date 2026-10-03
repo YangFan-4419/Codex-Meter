@@ -9,6 +9,7 @@ import dev.bennett.codexmeter.wear.WearUsageState;
 public final class TileAccountActivity extends Activity {
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
+        WearTheme.apply(this);
         String service = getIntent().getStringExtra("tile_service");
         int id = getIntent().getIntExtra("tile_id", -1);
         java.util.List<Class<? extends CodexTileService>> providers = java.util.List.of(

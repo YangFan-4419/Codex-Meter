@@ -21,6 +21,7 @@ import dev.bennett.codexmeter.wear.WearSyncStatus;
 
 public final class WearMainActivity extends Activity implements DataClient.OnDataChangedListener {
     private static final int REQUEST_NOTIFICATIONS = 8714;
+    private int appliedThemeSignature;
     private TextView accountValue;
     private TextView creditsValue;
     private TextView fiveHourValue;
@@ -31,6 +32,8 @@ public final class WearMainActivity extends Activity implements DataClient.OnDat
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WearTheme.apply(this);
+        appliedThemeSignature = WearTheme.signature(this);
         setContentView(R.layout.activity_wear_main);
         accountValue = findViewById(R.id.account_value);
         findViewById(R.id.account_selector_button).setOnClickListener(view -> {
@@ -122,6 +125,10 @@ public final class WearMainActivity extends Activity implements DataClient.OnDat
     }
 
     private void refreshUi() {
+        if (appliedThemeSignature != WearTheme.signature(this)) {
+            recreate();
+            return;
+        }
         UsageSnapshot snapshot = WearPreferences.loadSnapshot(this);
         UsageWindow fiveHour = WearGlanceFormat.currentFiveHour(snapshot);
         UsageWindow longWindow = WearGlanceFormat.currentLongWindow(snapshot);
@@ -141,7 +148,8 @@ public final class WearMainActivity extends Activity implements DataClient.OnDat
         if (lineBreak > 0) {
             chip.setSpan(new android.text.style.RelativeSizeSpan(0.8f), 0, lineBreak, 0);
             chip.setSpan(new android.text.style.ForegroundColorSpan(
-                    getColor(R.color.codex_secondary_text)), 0, lineBreak, 0);
+                    WearTheme.color(this, R.attr.wearColorSecondaryText,
+                            R.color.codex_secondary_text)), 0, lineBreak, 0);
         }
         accountSelector.setText(chip);
         accountSelector.setContentDescription(selection.replace('\n', ' '));

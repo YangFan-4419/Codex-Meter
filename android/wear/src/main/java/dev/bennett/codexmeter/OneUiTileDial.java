@@ -19,6 +19,8 @@ final class OneUiTileDial {
     static LayoutElement element(android.content.Context context, UsageWindow window) {
         int color = window == null ? TRACK
                 : WearPreferences.tileColorBands(context).color(window.remainingPercent());
+        if (color == QuotaColorBands.SUFFICIENT_COLOR)
+            color = WearTheme.primary(context, color);
         LayoutElementBuilders.Arc.Builder track = new LayoutElementBuilders.Arc.Builder()
                 .setAnchorType(LayoutElementBuilders.ARC_ANCHOR_START)
                 .setAnchorAngle(DimensionBuilders.degrees(START_DEGREES))

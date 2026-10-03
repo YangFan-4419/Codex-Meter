@@ -205,8 +205,8 @@ final class CodexTileLayouts {
         ModifiersBuilders.Background background = new ModifiersBuilders.Background.Builder()
                 .setColor(ColorBuilders.argb(GRADIENT_FALLBACK))
                 .setBrush(new ColorBuilders.LinearGradient.Builder(
-                        ColorBuilders.argb(GRADIENT_START),
-                        ColorBuilders.argb(GRADIENT_END))
+                        ColorBuilders.argb(WearTheme.container(context, GRADIENT_START)),
+                        ColorBuilders.argb(WearTheme.container(context, GRADIENT_END)))
                         .setStartY(DimensionBuilders.dp(0f))
                         .setEndY(DimensionBuilders.dp(gradientHeightDp))
                         .build())

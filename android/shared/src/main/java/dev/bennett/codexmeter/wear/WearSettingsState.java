@@ -20,6 +20,7 @@ public final class WearSettingsState {
     public final String packageName;
     public final String percentMode;
     public final int refreshMinutes;
+    public final boolean watchDynamicColors;
     public final int tileColorLow;
     public final int tileColorSufficient;
     public final String sourceNode;
@@ -60,6 +61,18 @@ public final class WearSettingsState {
             long updatedAtMillis, String sourceNode, String packageName,
             boolean usagePaceEnabled, String usagePaceSensitivity,
             boolean acceleratedStartEnabled, int tileColorLow, int tileColorSufficient) {
+        this(displayMode, percentMode, autoStartEnabled, metric, threshold, monitorActive,
+                refreshMinutes, updatedAtMillis, sourceNode, packageName, usagePaceEnabled,
+                usagePaceSensitivity, acceleratedStartEnabled, tileColorLow, tileColorSufficient, false);
+    }
+
+    public WearSettingsState(String displayMode, String percentMode, boolean autoStartEnabled,
+            String metric, int threshold, boolean monitorActive, int refreshMinutes,
+            long updatedAtMillis, String sourceNode, String packageName,
+            boolean usagePaceEnabled, String usagePaceSensitivity,
+            boolean acceleratedStartEnabled, int tileColorLow, int tileColorSufficient,
+            boolean watchDynamicColors) {
+        this.watchDynamicColors = watchDynamicColors;
         QuotaColorBands bands = new QuotaColorBands(tileColorLow, tileColorSufficient);
         this.tileColorLow = bands.low;
         this.tileColorSufficient = bands.sufficient;
@@ -87,6 +100,7 @@ public final class WearSettingsState {
         json.put("threshold", threshold);
         json.put("monitor_active", monitorActive);
         json.put("refresh_minutes", refreshMinutes);
+        json.put("watch_dynamic_colors", watchDynamicColors);
         json.put("tile_color_low", tileColorLow);
         json.put("tile_color_sufficient", tileColorSufficient);
         json.put("usage_pace_enabled", usagePaceEnabled);
@@ -117,7 +131,8 @@ public final class WearSettingsState {
                 json.optString("usage_pace_sensitivity", UsagePace.BALANCED),
                 json.optBoolean("accelerated_start_enabled", false),
                 json.optInt("tile_color_low", QuotaColorBands.DEFAULT_LOW),
-                json.optInt("tile_color_sufficient", QuotaColorBands.DEFAULT_SUFFICIENT));
+                json.optInt("tile_color_sufficient", QuotaColorBands.DEFAULT_SUFFICIENT),
+                json.optBoolean("watch_dynamic_colors", false));
     }
 
     /**
@@ -135,6 +150,7 @@ public final class WearSettingsState {
                 && usagePaceEnabled == that.usagePaceEnabled
                 && threshold == that.threshold
                 && refreshMinutes == that.refreshMinutes
+                && watchDynamicColors == that.watchDynamicColors
                 && tileColorLow == that.tileColorLow
                 && tileColorSufficient == that.tileColorSufficient
                 && displayMode.equals(that.displayMode)
@@ -154,6 +170,7 @@ public final class WearSettingsState {
         result = 31 * result + threshold;
         result = 31 * result + (monitorActive ? 1 : 0);
         result = 31 * result + refreshMinutes;
+        result = 31 * result + (watchDynamicColors ? 1 : 0);
         result = 31 * result + tileColorLow;
         result = 31 * result + tileColorSufficient;
         result = 31 * result + (usagePaceEnabled ? 1 : 0);

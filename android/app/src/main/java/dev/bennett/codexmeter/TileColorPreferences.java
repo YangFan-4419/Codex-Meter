@@ -15,6 +15,13 @@ public final class TileColorPreferences {
         return new QuotaColorBands(prefs.getInt("low", QuotaColorBands.DEFAULT_LOW),
                 prefs.getInt("sufficient", QuotaColorBands.DEFAULT_SUFFICIENT));
     }
+    public static boolean dynamicColorsEnabled(Context context) {
+        return prefs(context).getBoolean("watch_dynamic_colors", false);
+    }
+    public static void setDynamicColorsEnabled(Context context, boolean enabled) {
+        prefs(context).edit().putBoolean("watch_dynamic_colors", enabled).apply();
+        PhoneWearSync.pushSettings(context);
+    }
     public static void save(Context context, int low, int sufficient) {
         if (!QuotaColorBands.isValid(low, sufficient))
             throw new IllegalArgumentException("Require 1 <= low < sufficient <= 99");

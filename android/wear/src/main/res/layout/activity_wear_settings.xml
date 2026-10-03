@@ -23,7 +23,7 @@
                 android:gravity="center"
                 android:includeFontPadding="false"
                 android:text="@string/wear_settings"
-                android:textColor="@color/codex_text"
+                android:textColor="?attr/wearColorText"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -65,7 +65,7 @@
                         android:layout_weight="1"
                         android:includeFontPadding="false"
                         android:text="@string/wear_surface"
-                        android:textColor="@color/codex_text"
+                        android:textColor="?attr/wearColorText"
                         android:textSize="15sp" />
 
                     <Spinner
@@ -81,7 +81,7 @@
                     android:layout_marginBottom="10dp"
                     android:includeFontPadding="false"
                     android:lineSpacingExtra="1dp"
-                    android:textColor="@color/codex_secondary_text"
+                    android:textColor="?attr/wearColorSecondaryText"
                     android:textSize="12sp" />
 
                 <View
@@ -105,7 +105,7 @@
                         android:layout_weight="1"
                         android:includeFontPadding="false"
                         android:text="@string/wear_percent_shown"
-                        android:textColor="@color/codex_text"
+                        android:textColor="?attr/wearColorText"
                         android:textSize="15sp" />
 
                     <Spinner
@@ -152,7 +152,7 @@
                         android:layout_weight="1"
                         android:includeFontPadding="false"
                         android:text="@string/wear_auto_start_threshold"
-                        android:textColor="@color/codex_text"
+                        android:textColor="?attr/wearColorText"
                         android:textSize="15sp" />
 
                     <Switch
@@ -183,7 +183,7 @@
                         android:layout_weight="1"
                         android:includeFontPadding="false"
                         android:text="@string/wear_metric"
-                        android:textColor="@color/codex_text"
+                        android:textColor="?attr/wearColorText"
                         android:textSize="15sp" />
 
                     <Spinner
@@ -213,7 +213,7 @@
                         android:layout_weight="1"
                         android:includeFontPadding="false"
                         android:text="@string/wear_threshold"
-                        android:textColor="@color/codex_text"
+                        android:textColor="?attr/wearColorText"
                         android:textSize="15sp" />
 
                     <Spinner
@@ -243,7 +243,7 @@
                         android:layout_weight="1"
                         android:includeFontPadding="false"
                         android:text="@string/wear_usage_pace"
-                        android:textColor="@color/codex_text"
+                        android:textColor="?attr/wearColorText"
                         android:textSize="15sp" />
 
                     <Switch
@@ -274,7 +274,7 @@
                         android:layout_weight="1"
                         android:includeFontPadding="false"
                         android:text="@string/wear_pace_sensitivity"
-                        android:textColor="@color/codex_text"
+                        android:textColor="?attr/wearColorText"
                         android:textSize="15sp" />
 
                     <Spinner
@@ -304,7 +304,7 @@
                         android:layout_weight="1"
                         android:includeFontPadding="false"
                         android:text="@string/wear_accelerated_start"
-                        android:textColor="@color/codex_text"
+                        android:textColor="?attr/wearColorText"
                         android:textSize="15sp" />
 
                     <Switch
@@ -335,7 +335,7 @@
                         android:layout_weight="1"
                         android:includeFontPadding="false"
                         android:text="@string/wear_monitor_active"
-                        android:textColor="@color/codex_text"
+                        android:textColor="?attr/wearColorText"
                         android:textSize="15sp" />
 
                     <Switch

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme.DynamicColors" parent="AppTheme">
+        <item name="android:colorAccent">@android:color/system_primary_fixed</item>
+        <item name="android:colorControlActivated">@android:color/system_primary_fixed</item>
+        <item name="wearColorPrimary">@android:color/system_primary_fixed</item>
+        <item name="wearColorOnPrimary">@android:color/system_on_primary_fixed</item>
+        <item name="wearColorContainer">@android:color/system_primary_container_dark</item>
+        <item name="wearColorSurface">@android:color/system_surface_container_dark</item>
+        <item name="wearColorText">@android:color/system_on_surface_dark</item>
+        <item name="wearColorSecondaryText">@android:color/system_on_surface_variant_dark</item>
+    </style>
+</resources>

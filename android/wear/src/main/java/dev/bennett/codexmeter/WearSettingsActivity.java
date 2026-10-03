@@ -44,6 +44,7 @@ public final class WearSettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WearTheme.apply(this);
         setContentView(R.layout.activity_wear_settings);
         displayModeValues = getResources().getStringArray(R.array.wear_display_modes);
         percentModeValues = getResources().getStringArray(R.array.wear_percent_modes);
@@ -169,7 +170,7 @@ public final class WearSettingsActivity extends Activity {
                 getPackageName(),
                 usagePaceSwitch.isChecked(),
                 selected(paceSensitivityValues, paceSensitivitySpinner),
-                acceleratedStartSwitch.isChecked(), existing.tileColorLow, existing.tileColorSufficient);
+                acceleratedStartSwitch.isChecked(), existing.tileColorLow, existing.tileColorSufficient, existing.watchDynamicColors);
         WearPreferences.saveLocalSettings(this, state);
         WearPhoneSync.pushSettings(this);
         if (monitorChanged) {
@@ -247,7 +248,9 @@ public final class WearSettingsActivity extends Activity {
     private View styleSpinnerText(View view, boolean dropdown) {
         if (view instanceof TextView) {
             TextView text = (TextView) view;
-            text.setTextColor(getColor(dropdown ? R.color.codex_text : R.color.codex_blue));
+            text.setTextColor(WearTheme.color(WearSettingsActivity.this,
+                    dropdown ? R.attr.wearColorText : R.attr.wearColorPrimary,
+                    dropdown ? R.color.codex_text : R.color.codex_blue));
             text.setAlpha(1f);
             text.setSingleLine(true);
             text.setIncludeFontPadding(false);

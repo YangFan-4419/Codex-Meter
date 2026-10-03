@@ -189,7 +189,8 @@ public final class PhoneWearSync {
                 UsagePacePreferences.getSensitivity(context),
                 NowBarPreferences.isAcceleratedStartEnabled(context),
                 dev.bennett.codexmeter.TileColorPreferences.get(context).low,
-                dev.bennett.codexmeter.TileColorPreferences.get(context).sufficient);
+                dev.bennett.codexmeter.TileColorPreferences.get(context).sufficient,
+                dev.bennett.codexmeter.TileColorPreferences.dynamicColorsEnabled(context));
     }
 
     private static void pushJson(Context context, String path, Object state) {

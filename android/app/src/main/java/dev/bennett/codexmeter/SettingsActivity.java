@@ -560,6 +560,13 @@ public final class SettingsActivity extends AppCompatActivity {
         }
 
         private void bindTileColors() {
+            SwitchPreferenceCompat dynamic = findPreference("watch_dynamic_colors_ui");
+            dynamic.setPersistent(false);
+            dynamic.setChecked(TileColorPreferences.dynamicColorsEnabled(requireContext()));
+            dynamic.setOnPreferenceChangeListener((preference, value) -> {
+                TileColorPreferences.setDynamicColorsEnabled(requireContext(), (Boolean) value);
+                return true;
+            });
             EditTextPreference low = findPreference("tile_color_low_ui");
             EditTextPreference sufficient = findPreference("tile_color_sufficient_ui");
             low.setPersistent(false);
@@ -580,7 +587,7 @@ public final class SettingsActivity extends AppCompatActivity {
                         updateTileColorSummary(low, sufficient);
                     } catch (IllegalArgumentException error) {
                         Toast.makeText(requireContext(),
-                                "Use 1–99%; red must be below blue-purple.", Toast.LENGTH_LONG).show();
+                                "Use 1–99%; the low band limit must be below the medium band limit.", Toast.LENGTH_LONG).show();
                     }
                     // Values come from the validated pair, never from an unchecked edit.
                     return false;
@@ -592,12 +599,12 @@ public final class SettingsActivity extends AppCompatActivity {
         private void updateTileColorSummary(EditTextPreference low, EditTextPreference sufficient) {
             QuotaColorBands bands = TileColorPreferences.get(requireContext());
             low.setText(String.valueOf(bands.low));
-            low.setSummary("Below " + bands.low + "% remaining");
+            low.setSummary(bands.low + "% remaining");
             sufficient.setText(String.valueOf(bands.sufficient));
-            sufficient.setSummary(bands.sufficient + "% remaining or more");
-            findPreference("tile_color_summary_ui").setSummary("Red: below " + bands.low
-                    + "% · Yellow: " + bands.low + "–" + (bands.sufficient - 1)
-                    + "% · Blue-purple: " + bands.sufficient + "% or more");
+            sufficient.setSummary(bands.sufficient + "% remaining");
+            findPreference("tile_color_summary_ui").setSummary("Red: <" + bands.low
+                    + "% · Yellow: " + bands.low + "%–<" + bands.sufficient
+                    + "% · Theme color: ≥" + bands.sufficient + "%");
         }
 
         private void bindRefresh() {
