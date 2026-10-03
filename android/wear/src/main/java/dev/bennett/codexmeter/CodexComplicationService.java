@@ -57,11 +57,7 @@ abstract class CodexComplicationService extends ComplicationDataSourceService {
     protected ShortTextComplicationData shortText(String text, String title, String description) {
         ShortTextComplicationData.Builder builder = new ShortTextComplicationData.Builder(
                 plain(text), plain(accountDescription(description)))
-                .setMonochromaticImage(monochromaticImage())
                 .setTapAction(tapAction(this));
-        if (title != null && !title.isEmpty()) {
-            builder.setTitle(plain(title));
-        }
         return builder.build();
     }
 
@@ -78,11 +74,7 @@ abstract class CodexComplicationService extends ComplicationDataSourceService {
         RangedValueComplicationData.Builder builder = new RangedValueComplicationData.Builder(
                 clamped, 0f, 100f, plain(accountDescription(description)))
                 .setText(plain(text))
-                .setMonochromaticImage(monochromaticImage())
                 .setTapAction(tapAction(this));
-        if (title != null && !title.isEmpty()) {
-            builder.setTitle(plain(title));
-        }
         return builder.build();
     }
 
@@ -93,11 +85,7 @@ abstract class CodexComplicationService extends ComplicationDataSourceService {
         GoalProgressComplicationData.Builder builder = new GoalProgressComplicationData.Builder(
                 clamped, 100f, plain(accountDescription(description)))
                 .setText(plain(text))
-                .setMonochromaticImage(monochromaticImage())
                 .setTapAction(tapAction(this));
-        if (title != null && !title.isEmpty()) {
-            builder.setTitle(plain(title));
-        }
         return builder.build();
     }
 

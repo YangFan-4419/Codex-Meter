@@ -13,7 +13,6 @@ import androidx.wear.protolayout.ProtoLayoutScope;
 import androidx.wear.protolayout.ResourceBuilders;
 import dev.bennett.codexmeter.wear.WearSettingsState;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 /** One UI Watch tile layouts shared by the full-screen and Samsung modular hosts. */
 final class CodexTileLayouts {
@@ -43,16 +42,22 @@ final class CodexTileLayouts {
         boolean stale = snapshot != null && isStale(context);
         String fiveReset = stale ? "Stale phone data" : resetCopy(fiveHour, observedAt, now);
         String weekReset = stale ? "Stale phone data" : resetCopy(longWindow, observedAt, now);
-        LayoutElementBuilders.Column.Builder overview = new LayoutElementBuilders.Column.Builder()
+        LayoutElement rows = new LayoutElementBuilders.Column.Builder()
                 .setWidth(DimensionBuilders.expand())
                 .setHeight(DimensionBuilders.wrap())
                 .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_START)
-                .addContent(metricRow(context, fiveHour, "5hr", false, fiveReset, 9f, text, scope))
+                .addContent(metricRow(context, fiveHour, "5hr", false, fiveReset, 6f, text, scope))
                 .addContent(verticalSpacer(6.5f))
-                .addContent(metricRow(context, longWindow, longLabel, true, weekReset, 9f, text,
-                        scope));
+                .addContent(metricRow(context, longWindow, longLabel, true, weekReset, 6f, text,
+                        scope)).build();
+        // A circular dial needs clearance from the capsule's curved corners,
+        // not just the rectangular viewport edge. Keep the footer centered separately.
+        LayoutElementBuilders.Column.Builder overview = new LayoutElementBuilders.Column.Builder()
+                .setWidth(DimensionBuilders.expand())
+                .setHeight(DimensionBuilders.wrap())
+                .addContent(leadingInset(rows, 24f, 8f));
         String account = WearPreferences.shortAccountLabel(context, 18);
-        if (!account.isEmpty()) overview.addContent(verticalSpacer(6f))
+        if (!account.isEmpty()) overview.addContent(verticalSpacer(3f))
                 .addContent(new LayoutElementBuilders.Box.Builder()
                         .setWidth(DimensionBuilders.expand())
                         .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
@@ -64,7 +69,7 @@ final class CodexTileLayouts {
                 + ". " + longLabel + " usage, "
                 + WearGlanceFormat.remainingPercentText(longWindow)
                 + " remaining, " + weekReset + ". Open Codex Meter.";
-        return card(context, "overview", leadingInset(content, 12f), 0f, 72f, 176f,
+        return card(context, "overview", content, 0f, 72f, 176f,
                 description);
     }
 
@@ -79,15 +84,23 @@ final class CodexTileLayouts {
                 ? "Stale phone data"
                 : resetCopy(window, observedAt, System.currentTimeMillis());
         String designLabel = lowered.contains("month") ? "Monthly" : weekly ? "Weekly" : "5hr";
-        boolean compact = isCompactViewport(deviceParameters);
-        float gap = compact ? 9f : 14f;
-        float inset = compact ? 8f : 14f;
+        float gap = 6f;
+        float inset = 12f;
+        LayoutElement headline = new LayoutElementBuilders.Row.Builder()
+                .setWidth(DimensionBuilders.wrap())
+                .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
+                .addContent(text.element(WearGlanceFormat.remainingPercentText(window), 24f,
+                        TEXT_PRIMARY, LayoutElementBuilders.FONT_WEIGHT_BOLD))
+                .addContent(horizontalSpacer(5f))
+                .addContent(text.element(designLabel, 10f, TEXT_SECONDARY,
+                        LayoutElementBuilders.FONT_WEIGHT_NORMAL)).build();
         LayoutElementBuilders.Column.Builder copy = new LayoutElementBuilders.Column.Builder()
                 .setWidth(DimensionBuilders.expand())
+                .setHeight(DimensionBuilders.wrap())
                 .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_START)
-                .addContent(text.element(designLabel, 11f, TEXT_SECONDARY, LayoutElementBuilders.FONT_WEIGHT_NORMAL))
-                .addContent(text.element(WearGlanceFormat.remainingPercentText(window), 28f, TEXT_PRIMARY, LayoutElementBuilders.FONT_WEIGHT_BOLD))
-                .addContent(text.element(reset, 13f, TEXT_PRIMARY, LayoutElementBuilders.FONT_WEIGHT_NORMAL));
+                .addContent(headline)
+                .addContent(text.element(reset, 12f, TEXT_PRIMARY,
+                        LayoutElementBuilders.FONT_WEIGHT_NORMAL));
         String account = WearPreferences.shortAccountLabel(context, 12);
         if (!account.isEmpty()) copy.addContent(text.element(account, 9f, TEXT_TERTIARY, LayoutElementBuilders.FONT_WEIGHT_NORMAL));
         LayoutElement content = new LayoutElementBuilders.Row.Builder()
@@ -97,7 +110,7 @@ final class CodexTileLayouts {
                 .addContent(horizontalSpacer(gap)).addContent(copy.build()).build();
         String description = label + ", " + WearGlanceFormat.remainingPercentText(window)
                 + " remaining, " + reset + ". Open Codex Meter.";
-        return card(context, label, leadingInset(content, inset), 0f, 64f, 128f, description);
+        return card(context, label, leadingInset(content, inset, 6f), 6f, 64f, 128f, description);
     }
 
     static LayoutElement reset(Context context, DeviceParameters deviceParameters,
@@ -120,7 +133,7 @@ final class CodexTileLayouts {
                 .setWidth(DimensionBuilders.expand())
                 .setHeight(DimensionBuilders.wrap())
                 .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_START)
-                .addContent(text.element("Next reset", 16f, TEXT_PRIMARY,
+                .addContent(text.element("Next reset", 12f, TEXT_PRIMARY,
                         LayoutElementBuilders.FONT_WEIGHT_BOLD))
                 .addContent(verticalSpacer(2f))
                 .addContent(text.element(relative, relative.length() <= 8 ? 24f : relative.length() <= 12 ? 18f : 12f, RESET_ACCENT,
@@ -148,13 +161,13 @@ final class CodexTileLayouts {
         UsageWindow focus = lowerRemaining(fiveHour, longWindow);
         boolean focusWeekly = focus != null && focus == longWindow;
         boolean active = WearOngoingMonitor.isActive(context);
-        int accent = active ? MONITOR_ACCENT : DIAL_PROGRESS;
+        int accent = active ? MONITOR_ACCENT : TEXT_SECONDARY;
 
         LayoutElement copy = new LayoutElementBuilders.Column.Builder()
                 .setWidth(DimensionBuilders.expand())
                 .setHeight(DimensionBuilders.wrap())
                 .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_START)
-                .addContent(text.element("Live monitor", 16f, TEXT_PRIMARY,
+                .addContent(text.element("Live monitor", 12f, TEXT_PRIMARY,
                         LayoutElementBuilders.FONT_WEIGHT_BOLD))
                 .addContent(verticalSpacer(2f))
                 .addContent(text.element(active ? "Active" : "Off", 22f, accent,
@@ -167,7 +180,7 @@ final class CodexTileLayouts {
         String description = "Live monitor " + (active ? "active" : "off") + ". "
                 + WearGlanceFormat.focusSummary(snapshot) + ". Open Codex Meter.";
         return card(context, "monitor", compactRow(
-                usageDial(context, focus, focusWeekly, scope), copy),
+                usageDial(context, active ? focus : null, focusWeekly, scope), copy),
                 10f, 64f, 128f, description);
     }
 
@@ -334,6 +347,10 @@ final class CodexTileLayouts {
     }
 
     private static LayoutElement leadingInset(LayoutElement content, float insetDp) {
+        return leadingInset(content, insetDp, 0f);
+    }
+
+    private static LayoutElement leadingInset(LayoutElement content, float insetDp, float endDp) {
         return new LayoutElementBuilders.Box.Builder()
                 .setWidth(DimensionBuilders.expand())
                 .setHeight(DimensionBuilders.wrap())
@@ -341,6 +358,7 @@ final class CodexTileLayouts {
                 .setModifiers(new ModifiersBuilders.Modifiers.Builder()
                         .setPadding(new ModifiersBuilders.Padding.Builder()
                                 .setStart(DimensionBuilders.dp(insetDp))
+                                .setEnd(DimensionBuilders.dp(endDp))
                                 .build())
                         .build())
                 .addContent(content)
@@ -386,26 +404,7 @@ final class CodexTileLayouts {
     }
 
     private static String resetCopy(UsageWindow window, long observedAtMillis, long nowMillis) {
-        if (window == null) return "Reset unavailable";
-        long resetAt = window.effectiveResetAtMillis(observedAtMillis);
-        if (resetAt <= nowMillis) return "Resets soon";
-        long minutes = Math.max(1L,
-                (resetAt - nowMillis + TimeUnit.MINUTES.toMillis(1) - 1L)
-                        / TimeUnit.MINUTES.toMillis(1));
-        long days = minutes / TimeUnit.DAYS.toMinutes(1);
-        long hours = (minutes % TimeUnit.DAYS.toMinutes(1)) / TimeUnit.HOURS.toMinutes(1);
-        long remainderMinutes = minutes % TimeUnit.HOURS.toMinutes(1);
-        StringBuilder copy = new StringBuilder("Resets in ");
-        if (days > 0L) copy.append(days).append('d');
-        if (hours > 0L) {
-            if (days > 0L) copy.append(' ');
-            copy.append(hours).append("hr");
-        }
-        if (days == 0L && remainderMinutes > 0L) {
-            if (hours > 0L) copy.append(' ');
-            copy.append(remainderMinutes).append(remainderMinutes == 1L ? "min" : "mins");
-        }
-        return copy.toString();
+        return WearGlanceFormat.tileResetText(window, observedAtMillis, nowMillis);
     }
 
     private static boolean isCompactViewport(DeviceParameters deviceParameters) {

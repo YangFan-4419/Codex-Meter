@@ -21,8 +21,27 @@ public final class AccountSelfTest {
         wearRoundTripAndSelection();
         tileBindings();
         quotaColors();
+        tileResetCopy();
         encryptedEnvelopeIntegrity();
         System.out.println("AccountSelfTest: all account/security/Wear checks passed");
+    }
+
+    private static void tileResetCopy() {
+        long now = 100000L;
+        check("Reset unavailable".equals(WearGlanceFormat.tileResetText(null, now, now)), "no reset");
+        for (Object[] fixture : new Object[][] {
+                {1L, "Resets in 1m"}, {59L, "Resets in 59m"},
+                {60L, "Resets in 1h"}, {115L, "Resets in 1h 55m"},
+                {1439L, "Resets in 23h 59m"}, {1440L, "Resets in 1d"},
+                {6L * 1440L + 15L * 60L, "Resets in 6d 15h"}}) {
+            long minutes = (Long) fixture[0];
+            UsageWindow window = new UsageWindow(25, 604800L, minutes * 60L, 0L);
+            check(fixture[1].equals(WearGlanceFormat.tileResetText(window, now, now)), "compact reset duration");
+        }
+        UsageWindow soon = new UsageWindow(25, 604800L, 0L, now / 1000L);
+        check("Resets soon".equals(WearGlanceFormat.tileResetText(soon, now, now)), "past reset");
+        UsageWindow roundedDay = new UsageWindow(25, 604800L, 86400L, 0L);
+        check("Resets in 1d".equals(WearGlanceFormat.tileResetText(roundedDay, now, now + 1L)), "minute rounding carries day");
     }
 
     private static void quotaColors() throws Exception {

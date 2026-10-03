@@ -96,6 +96,28 @@ public final class WearGlanceFormat {
                 + remainingPercentText(currentLongWindow(snapshot));
     }
 
+    /** Compact, minute-rounded reset copy for bounded Tile text columns. */
+    public static String tileResetText(UsageWindow window, long observedAtMillis, long nowMillis) {
+        if (window == null) return "Reset unavailable";
+        long resetAt = window.effectiveResetAtMillis(observedAtMillis);
+        if (resetAt <= nowMillis) return "Resets soon";
+        long minutes = Math.max(1L, (resetAt - nowMillis + MINUTE_MILLIS - 1L) / MINUTE_MILLIS);
+        long days = minutes / (24L * 60L);
+        long hours = (minutes % (24L * 60L)) / 60L;
+        long remainder = minutes % 60L;
+        StringBuilder text = new StringBuilder("Resets in ");
+        if (days > 0L) text.append(days).append('d');
+        if (hours > 0L) {
+            if (days > 0L) text.append(' ');
+            text.append(hours).append('h');
+        }
+        if (days == 0L && remainder > 0L) {
+            if (hours > 0L) text.append(' ');
+            text.append(remainder).append('m');
+        }
+        return text.toString();
+    }
+
     public static String nextResetWindowLabel(UsageSnapshot snapshot, long nowMillis) {
         if (snapshot == null) return "--";
         long next = snapshot.nextResetMillis(nowMillis);
