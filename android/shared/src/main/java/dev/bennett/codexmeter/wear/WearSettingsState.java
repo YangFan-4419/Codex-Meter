@@ -1,5 +1,6 @@
 package dev.bennett.codexmeter.wear;
 
+import dev.bennett.codexmeter.QuotaColorBands;
 import dev.bennett.codexmeter.NowBarAutoStart;
 import dev.bennett.codexmeter.NowBarDisplayMode;
 import dev.bennett.codexmeter.NowBarPercentMode;
@@ -19,6 +20,8 @@ public final class WearSettingsState {
     public final String packageName;
     public final String percentMode;
     public final int refreshMinutes;
+    public final int tileColorLow;
+    public final int tileColorSufficient;
     public final String sourceNode;
     public final int threshold;
     public final long updatedAtMillis;
@@ -46,6 +49,20 @@ public final class WearSettingsState {
             long updatedAtMillis, String sourceNode, String packageName,
             boolean usagePaceEnabled, String usagePaceSensitivity,
             boolean acceleratedStartEnabled) {
+        this(displayMode, percentMode, autoStartEnabled, metric, threshold, monitorActive,
+                refreshMinutes, updatedAtMillis, sourceNode, packageName, usagePaceEnabled,
+                usagePaceSensitivity, acceleratedStartEnabled,
+                QuotaColorBands.DEFAULT_LOW, QuotaColorBands.DEFAULT_SUFFICIENT);
+    }
+
+    public WearSettingsState(String displayMode, String percentMode, boolean autoStartEnabled,
+            String metric, int threshold, boolean monitorActive, int refreshMinutes,
+            long updatedAtMillis, String sourceNode, String packageName,
+            boolean usagePaceEnabled, String usagePaceSensitivity,
+            boolean acceleratedStartEnabled, int tileColorLow, int tileColorSufficient) {
+        QuotaColorBands bands = new QuotaColorBands(tileColorLow, tileColorSufficient);
+        this.tileColorLow = bands.low;
+        this.tileColorSufficient = bands.sufficient;
         this.displayMode = NowBarDisplayMode.normalize(displayMode);
         this.percentMode = NowBarPercentMode.normalize(percentMode);
         this.autoStartEnabled = autoStartEnabled;
@@ -70,6 +87,8 @@ public final class WearSettingsState {
         json.put("threshold", threshold);
         json.put("monitor_active", monitorActive);
         json.put("refresh_minutes", refreshMinutes);
+        json.put("tile_color_low", tileColorLow);
+        json.put("tile_color_sufficient", tileColorSufficient);
         json.put("usage_pace_enabled", usagePaceEnabled);
         json.put("usage_pace_sensitivity", usagePaceSensitivity);
         json.put("accelerated_start_enabled", acceleratedStartEnabled);
@@ -96,7 +115,9 @@ public final class WearSettingsState {
                 json.optString("package_name", ""),
                 json.optBoolean("usage_pace_enabled", true),
                 json.optString("usage_pace_sensitivity", UsagePace.BALANCED),
-                json.optBoolean("accelerated_start_enabled", false));
+                json.optBoolean("accelerated_start_enabled", false),
+                json.optInt("tile_color_low", QuotaColorBands.DEFAULT_LOW),
+                json.optInt("tile_color_sufficient", QuotaColorBands.DEFAULT_SUFFICIENT));
     }
 
     /**
@@ -114,6 +135,8 @@ public final class WearSettingsState {
                 && usagePaceEnabled == that.usagePaceEnabled
                 && threshold == that.threshold
                 && refreshMinutes == that.refreshMinutes
+                && tileColorLow == that.tileColorLow
+                && tileColorSufficient == that.tileColorSufficient
                 && displayMode.equals(that.displayMode)
                 && percentMode.equals(that.percentMode)
                 && metric.equals(that.metric)
@@ -131,6 +154,8 @@ public final class WearSettingsState {
         result = 31 * result + threshold;
         result = 31 * result + (monitorActive ? 1 : 0);
         result = 31 * result + refreshMinutes;
+        result = 31 * result + tileColorLow;
+        result = 31 * result + tileColorSufficient;
         result = 31 * result + (usagePaceEnabled ? 1 : 0);
         result = 31 * result + usagePaceSensitivity.hashCode();
         result = 31 * result + sourceNode.hashCode();

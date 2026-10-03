@@ -169,7 +169,7 @@ public final class WearSettingsActivity extends Activity {
                 getPackageName(),
                 usagePaceSwitch.isChecked(),
                 selected(paceSensitivityValues, paceSensitivitySpinner),
-                acceleratedStartSwitch.isChecked());
+                acceleratedStartSwitch.isChecked(), existing.tileColorLow, existing.tileColorSufficient);
         WearPreferences.saveLocalSettings(this, state);
         WearPhoneSync.pushSettings(this);
         if (monitorChanged) {

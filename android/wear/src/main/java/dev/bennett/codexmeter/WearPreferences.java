@@ -34,6 +34,8 @@ public final class WearPreferences {
     private static final String KEY_STATUS_ERROR = "status_error";
     private static final String KEY_STATUS_LAST_SUCCESS = "status_last_success";
     private static final String KEY_SYNCED = "synced";
+    private static final String KEY_TILE_COLOR_LOW = "tile_color_low";
+    private static final String KEY_TILE_COLOR_SUFFICIENT = "tile_color_sufficient";
     private static final String KEY_THRESHOLD = "threshold";
     private static final String KEY_USAGE_PACE_ENABLED = "usage_pace_enabled";
     private static final String KEY_USAGE_PACE_SENSITIVITY = "usage_pace_sensitivity";
@@ -148,7 +150,9 @@ public final class WearPreferences {
                 context.getPackageName(),
                 prefs.getBoolean(KEY_USAGE_PACE_ENABLED, true),
                 prefs.getString(KEY_USAGE_PACE_SENSITIVITY, UsagePace.BALANCED),
-                prefs.getBoolean(KEY_ACCELERATED_START, false));
+                prefs.getBoolean(KEY_ACCELERATED_START, false),
+                prefs.getInt(KEY_TILE_COLOR_LOW, QuotaColorBands.DEFAULT_LOW),
+                prefs.getInt(KEY_TILE_COLOR_SUFFICIENT, QuotaColorBands.DEFAULT_SUFFICIENT));
     }
 
     public static boolean applyRemoteSettings(Context context, WearSettingsState remote) {
@@ -342,7 +346,11 @@ public final class WearPreferences {
 
     private static void saveSettings(Context context, WearSettingsState state, boolean local) {
         long stamp = state.updatedAtMillis > 0L ? state.updatedAtMillis : System.currentTimeMillis();
+        QuotaColorBands bands = local ? tileColorBands(context)
+                : new QuotaColorBands(state.tileColorLow, state.tileColorSufficient);
         SharedPreferences.Editor editor = prefs(context).edit()
+                .putInt(KEY_TILE_COLOR_LOW, bands.low)
+                .putInt(KEY_TILE_COLOR_SUFFICIENT, bands.sufficient)
                 .putString(KEY_DISPLAY_MODE, state.displayMode)
                 .putString(KEY_PERCENT_MODE, state.percentMode)
                 .putBoolean(KEY_AUTO_START, state.autoStartEnabled)
@@ -359,6 +367,12 @@ public final class WearPreferences {
         }
         editor.apply();
         WearSurfaceUpdater.requestAll(context);
+    }
+
+    public static QuotaColorBands tileColorBands(Context context) {
+        SharedPreferences prefs = prefs(context);
+        return new QuotaColorBands(prefs.getInt(KEY_TILE_COLOR_LOW, QuotaColorBands.DEFAULT_LOW),
+                prefs.getInt(KEY_TILE_COLOR_SUFFICIENT, QuotaColorBands.DEFAULT_SUFFICIENT));
     }
 
     private static SharedPreferences prefs(Context context) {

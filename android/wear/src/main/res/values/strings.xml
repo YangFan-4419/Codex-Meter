@@ -49,6 +49,6 @@
     <string name="complication_next_reset">Codex next reset</string>
     <string name="wear_choose_account">Choose account</string>
     <string name="wear_account_label">%1$s · %2$s</string>
-    <string name="wear_following_account">Follow phone · %1$s</string>
-    <string name="wear_selected_account">Account · %1$s</string>
+    <string name="wear_following_account">Follow phone\n%1$s</string>
+    <string name="wear_selected_account">Watch selection\n%1$s</string>
 </resources>

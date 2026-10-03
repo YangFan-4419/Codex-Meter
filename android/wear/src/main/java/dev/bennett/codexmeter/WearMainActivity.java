@@ -134,8 +134,17 @@ public final class WearMainActivity extends Activity implements DataClient.OnDat
         if (!accountLabel.isEmpty()) accountValue.setText(getString(R.string.wear_account_label, accountLabel, accountValue.getText()));
         dev.bennett.codexmeter.wear.WearUsageState accounts = WearPreferences.accountState(this);
         Button accountSelector = findViewById(R.id.account_selector_button);
-        accountSelector.setText(getString(WearPreferences.selectedAccountId(this).isEmpty()
-                ? R.string.wear_following_account : R.string.wear_selected_account, accountLabel));
+        String selection = getString(WearPreferences.selectedAccountId(this).isEmpty()
+                ? R.string.wear_following_account : R.string.wear_selected_account, accountLabel);
+        android.text.SpannableString chip = new android.text.SpannableString(selection);
+        int lineBreak = selection.indexOf('\n');
+        if (lineBreak > 0) {
+            chip.setSpan(new android.text.style.RelativeSizeSpan(0.8f), 0, lineBreak, 0);
+            chip.setSpan(new android.text.style.ForegroundColorSpan(
+                    getColor(R.color.codex_secondary_text)), 0, lineBreak, 0);
+        }
+        accountSelector.setText(chip);
+        accountSelector.setContentDescription(selection.replace('\n', ' '));
         accountSelector.setVisibility(accounts != null && accounts.accounts.size() > 1
                 ? View.VISIBLE : View.GONE);
 

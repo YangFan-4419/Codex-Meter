@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
@@ -518,6 +519,7 @@ public final class SettingsActivity extends AppCompatActivity {
         }
 
         private void bindAppearance() {
+            bindTileColors();
             String selected = AppPreferences.getAppTheme(requireContext());
             boolean useSystem = WidgetOptions.THEME_SYSTEM.equals(selected);
             HorizontalRadioPreference theme = findPreference("app_theme");
@@ -555,6 +557,47 @@ public final class SettingsActivity extends AppCompatActivity {
                 requireActivity().recreate();
                 return true;
             });
+        }
+
+        private void bindTileColors() {
+            EditTextPreference low = findPreference("tile_color_low_ui");
+            EditTextPreference sufficient = findPreference("tile_color_sufficient_ui");
+            low.setPersistent(false);
+            sufficient.setPersistent(false);
+            for (EditTextPreference field : new EditTextPreference[] {low, sufficient}) {
+                field.setOnBindEditTextListener(edit -> {
+                    edit.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    edit.selectAll();
+                });
+                field.setOnPreferenceChangeListener((preference, value) -> {
+                    QuotaColorBands existing = TileColorPreferences.get(requireContext());
+                    try {
+                        int entered = Integer.parseInt(String.valueOf(value).trim());
+                        int red = preference == low ? entered : existing.low;
+                        int blue = preference == sufficient ? entered : existing.sufficient;
+                        if (!QuotaColorBands.isValid(red, blue)) throw new IllegalArgumentException();
+                        TileColorPreferences.save(requireContext(), red, blue);
+                        updateTileColorSummary(low, sufficient);
+                    } catch (IllegalArgumentException error) {
+                        Toast.makeText(requireContext(),
+                                "Use 1–99%; red must be below blue-purple.", Toast.LENGTH_LONG).show();
+                    }
+                    // Values come from the validated pair, never from an unchecked edit.
+                    return false;
+                });
+            }
+            updateTileColorSummary(low, sufficient);
+        }
+
+        private void updateTileColorSummary(EditTextPreference low, EditTextPreference sufficient) {
+            QuotaColorBands bands = TileColorPreferences.get(requireContext());
+            low.setText(String.valueOf(bands.low));
+            low.setSummary("Below " + bands.low + "% remaining");
+            sufficient.setText(String.valueOf(bands.sufficient));
+            sufficient.setSummary(bands.sufficient + "% remaining or more");
+            findPreference("tile_color_summary_ui").setSummary("Red: below " + bands.low
+                    + "% · Yellow: " + bands.low + "–" + (bands.sufficient - 1)
+                    + "% · Blue-purple: " + bands.sufficient + "% or more");
         }
 
         private void bindRefresh() {

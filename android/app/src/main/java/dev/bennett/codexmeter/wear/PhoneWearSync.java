@@ -117,6 +117,7 @@ public final class PhoneWearSync {
             NowBarPreferences.setAcceleratedStartEnabled(app, remote.acceleratedStartEnabled);
             UsagePacePreferences.setEnabled(app, remote.usagePaceEnabled);
             UsagePacePreferences.setSensitivity(app, remote.usagePaceSensitivity);
+            // Phone owns Tile color thresholds too; Wear never overwrites them.
             // Phone owns the refresh interval. Wear may echo a cached/default value before the
             // first phone→Wear settings item arrives; never let that clobber the phone schedule.
             if (remote.monitorActive != wasActive) {
@@ -186,7 +187,9 @@ public final class PhoneWearSync {
                 context.getPackageName(),
                 UsagePacePreferences.isEnabled(context),
                 UsagePacePreferences.getSensitivity(context),
-                NowBarPreferences.isAcceleratedStartEnabled(context));
+                NowBarPreferences.isAcceleratedStartEnabled(context),
+                dev.bennett.codexmeter.TileColorPreferences.get(context).low,
+                dev.bennett.codexmeter.TileColorPreferences.get(context).sufficient);
     }
 
     private static void pushJson(Context context, String path, Object state) {

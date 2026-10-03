@@ -19,4 +19,13 @@
             android:title="Material You" />
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="Watch Tile progress colors">
+        <EditTextPreference android:key="tile_color_low_ui"
+            android:title="Red below" android:dialogTitle="Red below (%)" />
+        <EditTextPreference android:key="tile_color_sufficient_ui"
+            android:title="Blue-purple from" android:dialogTitle="Blue-purple from (%)" />
+        <Preference android:key="tile_color_summary_ui" android:selectable="false"
+            android:title="Based on remaining allowance" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

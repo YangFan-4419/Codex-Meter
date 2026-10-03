@@ -27,7 +27,6 @@ final class CodexTileLayouts {
     private static final int TEXT_PRIMARY = 0xFFFFFFFF;
     private static final int TEXT_SECONDARY = 0xCCFFFFFF;
     private static final int TEXT_TERTIARY = 0xCCFFFFFF;
-    private static final int TEXT_DIVIDER = 0x66FFFFFF;
 
     private CodexTileLayouts() {
     }
@@ -44,15 +43,22 @@ final class CodexTileLayouts {
         boolean stale = snapshot != null && isStale(context);
         String fiveReset = stale ? "Stale phone data" : resetCopy(fiveHour, observedAt, now);
         String weekReset = stale ? "Stale phone data" : resetCopy(longWindow, observedAt, now);
-        LayoutElement content = new LayoutElementBuilders.Column.Builder()
+        LayoutElementBuilders.Column.Builder overview = new LayoutElementBuilders.Column.Builder()
                 .setWidth(DimensionBuilders.expand())
                 .setHeight(DimensionBuilders.wrap())
                 .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_START)
                 .addContent(metricRow(context, fiveHour, "5hr", false, fiveReset, 9f, text, scope))
                 .addContent(verticalSpacer(6.5f))
                 .addContent(metricRow(context, longWindow, longLabel, true, weekReset, 9f, text,
-                        scope))
-                .build();
+                        scope));
+        String account = WearPreferences.shortAccountLabel(context, 18);
+        if (!account.isEmpty()) overview.addContent(verticalSpacer(6f))
+                .addContent(new LayoutElementBuilders.Box.Builder()
+                        .setWidth(DimensionBuilders.expand())
+                        .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
+                        .addContent(text.element(account, 9f, TEXT_TERTIARY,
+                                LayoutElementBuilders.FONT_WEIGHT_NORMAL)).build());
+        LayoutElement content = overview.build();
         String description = "Five hour usage, "
                 + WearGlanceFormat.remainingPercentText(fiveHour) + " remaining, " + fiveReset
                 + ". " + longLabel + " usage, "
@@ -79,11 +85,11 @@ final class CodexTileLayouts {
         LayoutElementBuilders.Column.Builder copy = new LayoutElementBuilders.Column.Builder()
                 .setWidth(DimensionBuilders.expand())
                 .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_START)
-                .addContent(text.element(designLabel, 12f, TEXT_SECONDARY, LayoutElementBuilders.FONT_WEIGHT_NORMAL))
-                .addContent(text.element(WearGlanceFormat.remainingPercentText(window), 26f, TEXT_PRIMARY, LayoutElementBuilders.FONT_WEIGHT_BOLD))
-                .addContent(text.element(reset, 11f, TEXT_SECONDARY, LayoutElementBuilders.FONT_WEIGHT_NORMAL));
+                .addContent(text.element(designLabel, 11f, TEXT_SECONDARY, LayoutElementBuilders.FONT_WEIGHT_NORMAL))
+                .addContent(text.element(WearGlanceFormat.remainingPercentText(window), 28f, TEXT_PRIMARY, LayoutElementBuilders.FONT_WEIGHT_BOLD))
+                .addContent(text.element(reset, 13f, TEXT_PRIMARY, LayoutElementBuilders.FONT_WEIGHT_NORMAL));
         String account = WearPreferences.shortAccountLabel(context, 12);
-        if (!account.isEmpty()) copy.addContent(text.element(account, 10f, TEXT_SECONDARY, LayoutElementBuilders.FONT_WEIGHT_NORMAL));
+        if (!account.isEmpty()) copy.addContent(text.element(account, 9f, TEXT_TERTIARY, LayoutElementBuilders.FONT_WEIGHT_NORMAL));
         LayoutElement content = new LayoutElementBuilders.Row.Builder()
                 .setWidth(DimensionBuilders.expand())
                 .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
@@ -114,10 +120,10 @@ final class CodexTileLayouts {
                 .setWidth(DimensionBuilders.expand())
                 .setHeight(DimensionBuilders.wrap())
                 .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_START)
-                .addContent(text.element("Next reset", 13f, TEXT_PRIMARY,
+                .addContent(text.element("Next reset", 16f, TEXT_PRIMARY,
                         LayoutElementBuilders.FONT_WEIGHT_BOLD))
                 .addContent(verticalSpacer(2f))
-                .addContent(text.element(relative, 14f, RESET_ACCENT,
+                .addContent(text.element(relative, relative.length() <= 8 ? 24f : relative.length() <= 12 ? 18f : 12f, RESET_ACCENT,
                         LayoutElementBuilders.FONT_WEIGHT_BOLD))
                 .addContent(text.element(WearPreferences.accountLabel(context).isEmpty() ? windowLabel
                         : WearPreferences.shortAccountLabel(context, 12) + " · " + windowLabel, 9f, TEXT_TERTIARY,
@@ -148,10 +154,10 @@ final class CodexTileLayouts {
                 .setWidth(DimensionBuilders.expand())
                 .setHeight(DimensionBuilders.wrap())
                 .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_START)
-                .addContent(text.element("Live monitor", 13f, TEXT_PRIMARY,
+                .addContent(text.element("Live monitor", 16f, TEXT_PRIMARY,
                         LayoutElementBuilders.FONT_WEIGHT_BOLD))
                 .addContent(verticalSpacer(2f))
-                .addContent(text.element(active ? "Active" : "Off", 14f, accent,
+                .addContent(text.element(active ? "Active" : "Off", 22f, accent,
                         LayoutElementBuilders.FONT_WEIGHT_BOLD))
                 .addContent(text.element(WearPreferences.accountLabel(context).isEmpty()
                         ? WearGlanceFormat.focusSummary(snapshot)
@@ -245,40 +251,23 @@ final class CodexTileLayouts {
     private static LayoutElement metricRow(Context context, UsageWindow window, String label,
             boolean weekly, String reset, float gapDp, OneUiTileText text,
             ProtoLayoutScope scope) {
+        // Usage leads; reset timing is secondary, and the cycle is a quiet label.
         LayoutElement headline = new LayoutElementBuilders.Row.Builder()
                 .setWidth(DimensionBuilders.wrap())
-                .setHeight(DimensionBuilders.wrap())
-                .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
-                .addContent(text.element(WearGlanceFormat.remainingPercentText(window), 20f,
+                .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
+                .addContent(text.element(WearGlanceFormat.remainingPercentText(window), 26f,
                         TEXT_PRIMARY, LayoutElementBuilders.FONT_WEIGHT_BOLD))
-                .addContent(horizontalSpacer(5f))
-                .addContent(new LayoutElementBuilders.Box.Builder()
-                        .setWidth(DimensionBuilders.dp(4f))
-                        .setHeight(DimensionBuilders.dp(4f))
-                        .setModifiers(new ModifiersBuilders.Modifiers.Builder()
-                                .setBackground(new ModifiersBuilders.Background.Builder()
-                                        .setColor(ColorBuilders.argb(TEXT_DIVIDER))
-                                        .setCorner(new ModifiersBuilders.Corner.Builder()
-                                                .setRadius(DimensionBuilders.dp(2f))
-                                                .build())
-                                        .build())
-                                .build())
-                        .build())
-                .addContent(horizontalSpacer(5f))
-                .addContent(text.element(label, 20f, TEXT_SECONDARY,
-                        LayoutElementBuilders.FONT_WEIGHT_NORMAL))
-                .build();
+                .addContent(horizontalSpacer(6f))
+                .addContent(text.element(label, 11f, TEXT_SECONDARY,
+                        LayoutElementBuilders.FONT_WEIGHT_NORMAL)).build();
         LayoutElementBuilders.Column.Builder copyBuilder = new LayoutElementBuilders.Column.Builder()
                 .setWidth(DimensionBuilders.expand())
                 .setHeight(DimensionBuilders.wrap())
                 .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_START)
                 .addContent(headline)
-                .addContent(verticalSpacer(4f))
-                .addContent(text.element(reset, 13f, TEXT_SECONDARY,
+                .addContent(verticalSpacer(2f))
+                .addContent(text.element(reset, 13f, TEXT_PRIMARY,
                         LayoutElementBuilders.FONT_WEIGHT_NORMAL));
-        String accountLabel = WearPreferences.shortAccountLabel(context, 12);
-        if (!accountLabel.isEmpty()) copyBuilder.addContent(text.element(accountLabel, 10f,
-                TEXT_TERTIARY, LayoutElementBuilders.FONT_WEIGHT_NORMAL));
         LayoutElement copy = copyBuilder.build();
         return new LayoutElementBuilders.Row.Builder()
                 .setWidth(DimensionBuilders.expand())
@@ -309,7 +298,7 @@ final class CodexTileLayouts {
                                         + " remaining")
                                 .build())
                         .build())
-                .addContent(OneUiTileDial.element(window))
+                .addContent(OneUiTileDial.element(context, window))
                 .addContent(dialIcon(weekly, scope))
                 .build();
     }

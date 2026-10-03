@@ -8,7 +8,6 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 /** Builds Twidget's inset usage ring from quota-free native ProtoLayout arcs. */
 final class OneUiTileDial {
     private static final int TRACK = 0x4DFFFFFF;
-    private static final int PROGRESS = 0xFF6B6EE0;
     private static final float START_DEGREES = 225f;
     private static final float SWEEP_DEGREES = 270f;
     private static final float ARC_DIAMETER_DP = 52f;
@@ -17,19 +16,22 @@ final class OneUiTileDial {
     private OneUiTileDial() {
     }
 
-    static LayoutElement element(UsageWindow window) {
+    static LayoutElement element(android.content.Context context, UsageWindow window) {
+        int color = window == null ? TRACK
+                : WearPreferences.tileColorBands(context).color(window.remainingPercent());
         LayoutElementBuilders.Arc.Builder track = new LayoutElementBuilders.Arc.Builder()
                 .setAnchorType(LayoutElementBuilders.ARC_ANCHOR_START)
                 .setAnchorAngle(DimensionBuilders.degrees(START_DEGREES))
                 .setArcDirection(LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE)
-                .addContent(arcLine(SWEEP_DEGREES, TRACK));
+                .addContent(arcLine(SWEEP_DEGREES, window != null && window.remainingPercent() == 0
+                        ? (color & 0x00FFFFFF) | 0x4D000000 : TRACK));
         LayoutElementBuilders.Arc.Builder fill = new LayoutElementBuilders.Arc.Builder()
                 .setAnchorType(LayoutElementBuilders.ARC_ANCHOR_START)
                 .setAnchorAngle(DimensionBuilders.degrees(START_DEGREES))
                 .setArcDirection(LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE);
         float progress = WearGlanceFormat.remainingProgress(window);
         if (window != null && progress > 0f) {
-            fill.addContent(arcLine(SWEEP_DEGREES * progress, PROGRESS));
+            fill.addContent(arcLine(SWEEP_DEGREES * progress, color));
         }
         return new LayoutElementBuilders.Box.Builder()
                 .setWidth(DimensionBuilders.dp(ARC_DIAMETER_DP))

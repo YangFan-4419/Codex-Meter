@@ -20,8 +20,35 @@ public final class AccountSelfTest {
         refreshAndPartialFailure();
         wearRoundTripAndSelection();
         tileBindings();
+        quotaColors();
         encryptedEnvelopeIntegrity();
         System.out.println("AccountSelfTest: all account/security/Wear checks passed");
+    }
+
+    private static void quotaColors() throws Exception {
+        QuotaColorBands bands = new QuotaColorBands(20, 50);
+        check(bands.color(0) == QuotaColorBands.LOW_COLOR, "zero is low");
+        check(bands.color(19) == QuotaColorBands.LOW_COLOR, "below first boundary");
+        check(bands.color(20) == QuotaColorBands.MEDIUM_COLOR, "first boundary is medium");
+        check(bands.color(49) == QuotaColorBands.MEDIUM_COLOR, "below second boundary");
+        check(bands.color(50) == QuotaColorBands.SUFFICIENT_COLOR, "second boundary sufficient");
+        check(bands.color(100) == QuotaColorBands.SUFFICIENT_COLOR, "full allowance sufficient");
+        QuotaColorBands custom = new QuotaColorBands(30, 70);
+        check(custom.color(25) == QuotaColorBands.LOW_COLOR, "custom low");
+        check(custom.color(60) == QuotaColorBands.MEDIUM_COLOR, "custom medium");
+        for (int[] pair : new int[][] {{0,50}, {20,100}, {50,20}, {20,20}}) {
+            check(!QuotaColorBands.isValid(pair[0], pair[1]), "invalid band order/range");
+            QuotaColorBands invalid = new QuotaColorBands(pair[0], pair[1]);
+            check(invalid.low == 20 && invalid.sufficient == 50, "invalid payload defaults");
+        }
+        WearSettingsState legacy = WearSettingsState.fromJson(new JSONObject());
+        check(legacy.tileColorLow == 20 && legacy.tileColorSufficient == 50, "old payload defaults");
+        JSONObject payload = legacy.toJson().put("tile_color_low", 30).put("tile_color_sufficient", 70);
+        WearSettingsState changed = WearSettingsState.fromJson(payload);
+        WearSettingsState restored = WearSettingsState.fromJson(changed.toJson());
+        check(restored.tileColorLow == 30 && restored.tileColorSufficient == 70, "bands round trip");
+        check(changed.equals(restored) && changed.hashCode() == restored.hashCode(), "band equality");
+        check(!changed.equals(legacy), "changed color bands are different settings");
     }
 
     private static void tileBindings() {

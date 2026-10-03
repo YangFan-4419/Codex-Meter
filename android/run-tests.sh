@@ -45,6 +45,7 @@ javac -encoding UTF-8 -cp "$JSON_JAR" -d "$OUT" \
   "$ROOT/shared/src/main/java/dev/bennett/codexmeter/NowBarCopy.java" \
   "$ROOT/shared/src/main/java/dev/bennett/codexmeter/wear/WearSyncPaths.java" \
   "$ROOT/shared/src/main/java/dev/bennett/codexmeter/wear/WearSyncStatus.java" \
+  "$ROOT/shared/src/main/java/dev/bennett/codexmeter/QuotaColorBands.java" \
   "$ROOT/shared/src/main/java/dev/bennett/codexmeter/wear/WearSettingsState.java" \
   "$ROOT/shared/src/main/java/dev/bennett/codexmeter/wear/WearAccountStore.java" \
   "$ROOT/shared/src/main/java/dev/bennett/codexmeter/wear/TileAccountBinding.java" \
