@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -58,15 +59,18 @@ public final class AccountsActivity extends AppCompatActivity {
         LinearLayout content = Ui.installPage(this, "Accounts", true).content;
         androidx.swiperefreshlayout.widget.SwipeRefreshLayout pull = findViewById(R.id.dashboard_refresh);
         pull.setEnabled(false);
-        Button add = Ui.button(this, "Add account", dark, true);
-        add.setEnabled(!busy);
-        add.setOnClickListener(view -> startForegroundService(new Intent(this, OAuthService.class)
-                .setAction(OAuthService.ACTION_START).putExtra("add_account", true)));
-        content.addView(add);
-        Button all = Ui.button(this, busy ? "Refreshing…" : "Refresh all accounts", dark, false);
+        LinearLayout tools = Ui.cardGroup(this, dark);
+        content.addView(tools);
+        android.view.View all = Ui.actionRow(this, busy ? "Refreshing…" : "Refresh all accounts",
+                "Update usage for your connected accounts", 0,
+                view -> run(() -> UsageApi.refreshAllAndCache(getApplicationContext())));
         all.setEnabled(!busy);
-        all.setOnClickListener(view -> run(() -> UsageApi.refreshAllAndCache(getApplicationContext())));
-        content.addView(all);
+        tools.addView(all);
+        android.view.View add = Ui.actionRow(this, "Add account", "Sign in to another account", 0,
+                view -> startForegroundService(new Intent(this, OAuthService.class)
+                        .setAction(OAuthService.ACTION_START).putExtra("add_account", true)));
+        add.setEnabled(!busy);
+        tools.addView(add);
         String selected = AccountRepository.selectedId(this);
         for (AccountProfile account : AccountRepository.accounts(this)) {
             LinearLayout card = Ui.card(this, dark);
@@ -82,46 +86,63 @@ public final class AccountsActivity extends AppCompatActivity {
             if (snapshot != null) session += " · Updated " + android.text.format.DateUtils
                     .getRelativeTimeSpanString(snapshot.fetchedAtMillis, System.currentTimeMillis(),
                             android.text.format.DateUtils.MINUTE_IN_MILLIS);
+            Ui.addSpacer(card, 8);
             card.addView(Ui.text(this, session, 13f, Ui.mainText(dark)));
             String error = AccountRepository.usagePreferences(this, account.id).getString("last_error", "");
             if (!error.isEmpty()) card.addView(Ui.text(this, error, 14f, Ui.mainText(dark)));
-            action(card, "Use this account", () -> AccountRepository.select(this, account.id));
-            action(card, "Refresh", () -> UsageApi.refreshAndCache(this, account.id));
-            Button rename = Ui.button(this, "Rename", dark, false);
-            rename.setEnabled(!busy);
-            rename.setOnClickListener(view -> {
-                EditText input = new EditText(this);
-                input.setSingleLine(true);
-                input.setText(account.label);
-                input.setFilters(new android.text.InputFilter[] { new android.text.InputFilter.LengthFilter(40) });
-                new AlertDialog.Builder(this).setTitle("Account label").setView(input)
-                        .setNegativeButton("Cancel", null).setPositiveButton("Save", (dialog, which) ->
-                                run(() -> AccountRepository.rename(this, account.id, input.getText().toString()))).show();
+            Ui.addSpacer(card, 16);
+            LinearLayout actions = new LinearLayout(this);
+            actions.setOrientation(LinearLayout.HORIZONTAL);
+            card.addView(actions);
+            Button refresh = Ui.button(this, "Refresh", false, dark);
+            refresh.setEnabled(!busy);
+            refresh.setOnClickListener(view -> run(() -> UsageApi.refreshAndCache(this, account.id)));
+            LinearLayout.LayoutParams refreshParams = new LinearLayout.LayoutParams(0, -2, 1f);
+            refreshParams.setMarginEnd(Ui.dp(this, 12));
+            actions.addView(refresh, refreshParams);
+            Button more = Ui.button(this, "More", false, dark);
+            more.setContentDescription("More actions for " + account.label);
+            more.setEnabled(!busy);
+            actions.addView(more, new LinearLayout.LayoutParams(0, -2, 1f));
+            more.setOnClickListener(view -> {
+                PopupMenu menu = new PopupMenu(this, more);
+                if (!account.id.equals(selected)) menu.getMenu().add(0, 1, 0, "Use this account");
+                menu.getMenu().add(0, 2, 1, "Rename");
+                menu.getMenu().add(0, 3, 2, "Remove / sign out");
+                menu.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == 1) run(() -> AccountRepository.select(this, account.id));
+                    else if (item.getItemId() == 2) rename(account);
+                    else if (item.getItemId() == 3) remove(account);
+                    return true;
+                });
+                menu.show();
             });
-            card.addView(rename);
-            Button remove = Ui.button(this, "Remove / sign out", dark, false);
-            remove.setEnabled(!busy);
-            remove.setOnClickListener(view -> new AlertDialog.Builder(this)
-                    .setTitle("Remove " + account.label + "?")
-                    .setMessage("Removes this account’s encrypted session and cached usage.")
-                    .setNegativeButton("Cancel", null).setPositiveButton("Remove", (dialog, which) ->
-                            run(() -> {
-                                AuthTokens tokens = AccountRepository.remove(this, account.id);
-                                OAuthClient.revokeBestEffort(this, tokens);
-                            })).show());
-            card.addView(remove);
         }
+    }
+
+    private void rename(AccountProfile account) {
+        EditText input = new EditText(this);
+        input.setSingleLine(true);
+        input.setText(account.label);
+        input.setFilters(new android.text.InputFilter[] { new android.text.InputFilter.LengthFilter(40) });
+        new AlertDialog.Builder(this).setTitle("Account label").setView(input)
+                .setNegativeButton("Cancel", null).setPositiveButton("Save", (dialog, which) ->
+                        run(() -> AccountRepository.rename(this, account.id, input.getText().toString()))).show();
+    }
+
+    private void remove(AccountProfile account) {
+        new AlertDialog.Builder(this)
+                .setTitle("Remove " + account.label + "?")
+                .setMessage("Removes this account’s encrypted session and cached usage.")
+                .setNegativeButton("Cancel", null).setPositiveButton("Remove", (dialog, which) ->
+                        run(() -> {
+                            AuthTokens tokens = AccountRepository.remove(this, account.id);
+                            OAuthClient.revokeBestEffort(this, tokens);
+                        })).show();
     }
 
     private static String remaining(UsageWindow window) {
         return window == null ? "—" : window.remainingPercent() + "% remaining";
-    }
-
-    private void action(LinearLayout card, String label, Operation operation) {
-        Button button = Ui.button(this, label, Ui.isDark(this), false);
-        button.setEnabled(!busy);
-        button.setOnClickListener(view -> run(operation));
-        card.addView(button);
     }
 
     private void run(Operation operation) {

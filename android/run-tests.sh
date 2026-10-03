@@ -810,7 +810,7 @@ grep -q 'SWEEP_DEGREES = 270f' \
   "$ROOT/wear/src/main/java/dev/bennett/codexmeter/OneUiTileDial.java"
 grep -q 'GRADIENT_START = 0xFF534FA7' \
   "$ROOT/wear/src/main/java/dev/bennett/codexmeter/CodexTileLayouts.java"
-grep -q 'Typeface.create("sec"' \
+grep -q 'setPreferredFontFamilies("sec"' \
   "$ROOT/wear/src/main/java/dev/bennett/codexmeter/OneUiTileText.java"
 grep -Fq 'MAX_INLINE_IMAGE_BYTES = 10 * 1024' \
   "$ROOT/wear/src/main/java/dev/bennett/codexmeter/TileImageResources.java"
@@ -824,7 +824,7 @@ grep -q 'Stale phone data' \
   "$ROOT/wear/src/main/java/dev/bennett/codexmeter/CodexTileLayouts.java"
 grep -q 'readPersisted(requestedVersion)' \
   "$ROOT/wear/src/main/java/dev/bennett/codexmeter/CodexTileService.java"
-grep -q 'TileImageResources.argb8888(bitmap)' \
+grep -q 'new LayoutElementBuilders.Text.Builder()' \
   "$ROOT/wear/src/main/java/dev/bennett/codexmeter/OneUiTileText.java"
 grep -q 'new OneUiTileText(context, scope)' \
   "$ROOT/wear/src/main/java/dev/bennett/codexmeter/CodexTileLayouts.java"
@@ -837,3 +837,5 @@ grep -q 'One UI Watch' \
   "$ROOT/shared/src/main/java/dev/bennett/codexmeter/WearGlanceFormat.java"
 
 echo "Parser, updater, OAuth, onboarding, reset-credit, alert, widget, and Wear sync source checks passed."
+
+! grep -q 'Bitmap\|Canvas\|MAX_RENDER_SCALE' "$ROOT/wear/src/main/java/dev/bennett/codexmeter/OneUiTileText.java"
