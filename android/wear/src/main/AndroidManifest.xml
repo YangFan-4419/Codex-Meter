@@ -20,6 +20,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <activity android:name="dev.bennett.codexmeter.TileAccountActivity" android:exported="true" />
+
         <!-- Companion app: phone remains OAuth/API source of truth via Data Layer. -->
         <meta-data
             android:name="com.google.android.wearable.standalone"

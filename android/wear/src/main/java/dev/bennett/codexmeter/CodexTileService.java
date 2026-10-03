@@ -49,7 +49,9 @@ abstract class CodexTileService extends TileService {
         DeviceParameters deviceParameters = requestParams == null ? null
                 : requestParams.getDeviceConfiguration();
         ProtoLayoutScope scope = new ProtoLayoutScope();
-        LayoutElement root = tileLayout(deviceParameters, scope);
+        android.content.Context tileContext = new TileAccountContext(this, getClass().getName(),
+                requestParams == null ? 0 : requestParams.getTileId());
+        LayoutElement root = tileLayout(tileContext, deviceParameters, scope);
         Resources collected = scope.collectResources();
         String resourcesVersion = versionFor(collected);
         Resources resources = withVersion(collected, resourcesVersion);
@@ -76,7 +78,7 @@ abstract class CodexTileService extends TileService {
         ProtoLayoutScope scope = new ProtoLayoutScope();
         DeviceParameters parameters = requestParams == null ? null
                 : requestParams.getDeviceConfiguration();
-        tileLayout(parameters, scope);
+        tileLayout(this, parameters, scope);
         Resources collected = scope.collectResources();
         String version = versionFor(collected);
         Resources resources = withVersion(collected, version);
@@ -87,6 +89,12 @@ abstract class CodexTileService extends TileService {
             TileService.getUpdater(this).requestUpdate(getClass().asSubclass(TileService.class));
         }
         return Futures.immediateFuture(resources);
+    }
+
+    @Override protected void onTileRemoveEvent(androidx.wear.tiles.EventBuilders.TileRemoveEvent event) {
+        super.onTileRemoveEvent(event);
+        getSharedPreferences("tile_account_bindings", 0).edit()
+                .remove(getClass().getName() + ":" + event.getTileId()).apply();
     }
 
     private synchronized void cache(Resources resources) {
@@ -170,6 +178,6 @@ abstract class CodexTileService extends TileService {
         return builder.build();
     }
 
-    protected abstract LayoutElement tileLayout(DeviceParameters deviceParameters,
+    protected abstract LayoutElement tileLayout(android.content.Context context, DeviceParameters deviceParameters,
             ProtoLayoutScope scope);
 }

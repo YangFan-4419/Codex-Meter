@@ -49,21 +49,24 @@ abstract class CodexComplicationService extends ComplicationDataSourceService {
 
     protected abstract ComplicationData dataForType(ComplicationType type, boolean preview);
 
+    private String accountDescription(String description) {
+        String label = WearPreferences.accountLabel(this);
+        return label.isEmpty() ? description : description + ", " + label;
+    }
+
     protected ShortTextComplicationData shortText(String text, String title, String description) {
         ShortTextComplicationData.Builder builder = new ShortTextComplicationData.Builder(
-                plain(text), plain(description))
+                plain(text), plain(accountDescription(description)))
                 .setMonochromaticImage(monochromaticImage())
                 .setTapAction(tapAction(this));
         if (title != null && !title.isEmpty()) {
-            builder.setTitle(plain(WearPreferences.accountLabel(this).isEmpty()
-                    ? title : WearPreferences.shortAccountLabel(this, 7)));
+            builder.setTitle(plain(title));
         }
         return builder.build();
     }
 
     protected LongTextComplicationData longText(String text, String description) {
-        return new LongTextComplicationData.Builder(plain(WearPreferences.accountLabel(this).isEmpty()
-                ? text : text + " · " + WearPreferences.shortAccountLabel(this, 12)), plain(description))
+        return new LongTextComplicationData.Builder(plain(text), plain(accountDescription(description)))
                 .setMonochromaticImage(monochromaticImage())
                 .setTapAction(tapAction(this))
                 .build();
@@ -73,13 +76,12 @@ abstract class CodexComplicationService extends ComplicationDataSourceService {
             String description) {
         float clamped = Math.max(0f, Math.min(100f, value));
         RangedValueComplicationData.Builder builder = new RangedValueComplicationData.Builder(
-                clamped, 0f, 100f, plain(description))
+                clamped, 0f, 100f, plain(accountDescription(description)))
                 .setText(plain(text))
                 .setMonochromaticImage(monochromaticImage())
                 .setTapAction(tapAction(this));
         if (title != null && !title.isEmpty()) {
-            builder.setTitle(plain(WearPreferences.accountLabel(this).isEmpty()
-                    ? title : WearPreferences.shortAccountLabel(this, 7)));
+            builder.setTitle(plain(title));
         }
         return builder.build();
     }
@@ -89,13 +91,12 @@ abstract class CodexComplicationService extends ComplicationDataSourceService {
             String description) {
         float clamped = Math.max(0f, Math.min(100f, value));
         GoalProgressComplicationData.Builder builder = new GoalProgressComplicationData.Builder(
-                clamped, 100f, plain(description))
+                clamped, 100f, plain(accountDescription(description)))
                 .setText(plain(text))
                 .setMonochromaticImage(monochromaticImage())
                 .setTapAction(tapAction(this));
         if (title != null && !title.isEmpty()) {
-            builder.setTitle(plain(WearPreferences.accountLabel(this).isEmpty()
-                    ? title : WearPreferences.shortAccountLabel(this, 7)));
+            builder.setTitle(plain(title));
         }
         return builder.build();
     }
@@ -104,12 +105,12 @@ abstract class CodexComplicationService extends ComplicationDataSourceService {
     protected ComplicationData imageForType(ComplicationType type, String description) {
         if (type == ComplicationType.MONOCHROMATIC_IMAGE) {
             return new MonochromaticImageComplicationData.Builder(
-                    monochromaticImage(), plain(description))
+                    monochromaticImage(), plain(accountDescription(description)))
                     .setTapAction(tapAction(this))
                     .build();
         }
         if (type == ComplicationType.SMALL_IMAGE) {
-            return new SmallImageComplicationData.Builder(smallImage(), plain(description))
+            return new SmallImageComplicationData.Builder(smallImage(), plain(accountDescription(description)))
                     .setTapAction(tapAction(this))
                     .build();
         }

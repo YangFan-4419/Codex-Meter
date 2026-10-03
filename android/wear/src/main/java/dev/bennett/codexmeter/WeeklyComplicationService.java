@@ -9,7 +9,7 @@ public final class WeeklyComplicationService extends CodexComplicationService {
     protected ComplicationData dataForType(ComplicationType type, boolean preview) {
         UsageSnapshot snapshot = snapshot(preview);
         UsageWindow window = WearGlanceFormat.currentLongWindow(snapshot);
-        String shortLabel = WearGlanceFormat.longWindowShortLabel(snapshot);
+        String shortLabel = snapshot != null && snapshot.longWindowIsMonthly() ? "30d" : "7d";
         String label = WearGlanceFormat.longWindowLabel(snapshot);
         String description = label + " Codex usage remaining";
         String percent = surfaceText(preview, WearGlanceFormat.remainingPercentText(window));
@@ -23,7 +23,7 @@ public final class WeeklyComplicationService extends CodexComplicationService {
         } else if (type == ComplicationType.SHORT_TEXT) {
             return shortText(percent, shortLabel, description);
         } else if (type == ComplicationType.LONG_TEXT) {
-            return longText(label + " " + percent + " left", description);
+            return longText(shortLabel + " " + percent, description);
         }
         return imageForType(type, label + " Codex usage");
     }

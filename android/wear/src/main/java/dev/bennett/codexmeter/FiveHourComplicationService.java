@@ -19,7 +19,7 @@ public final class FiveHourComplicationService extends CodexComplicationService 
         } else if (type == ComplicationType.SHORT_TEXT) {
             return shortText(percent, "5h", "5-hour Codex usage remaining");
         } else if (type == ComplicationType.LONG_TEXT) {
-            return longText("5-hour " + percent + " left",
+            return longText("5h " + percent,
                     "5-hour Codex usage remaining");
         }
         return imageForType(type, "5-hour Codex usage");

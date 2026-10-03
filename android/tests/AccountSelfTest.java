@@ -19,8 +19,30 @@ public final class AccountSelfTest {
         reliableIdentity();
         refreshAndPartialFailure();
         wearRoundTripAndSelection();
+        tileBindings();
         encryptedEnvelopeIntegrity();
         System.out.println("AccountSelfTest: all account/security/Wear checks passed");
+    }
+
+    private static void tileBindings() {
+        String a = "00000000-0000-0000-0000-000000000001";
+        String b = "00000000-0000-0000-0000-000000000002";
+        WearUsageState state = new WearUsageState(snapshot(10, 100), 200, "phone", true,
+                List.of(new WearAccount(a, "Personal", true, snapshot(10, 100)),
+                        new WearAccount(b, "Work", true, snapshot(60, 150))), a);
+        Map<String, String> prefs = new java.util.HashMap<>();
+        String first = dev.bennett.codexmeter.wear.TileAccountBinding.key("overview", 1);
+        String second = dev.bennett.codexmeter.wear.TileAccountBinding.key("overview", 2);
+        prefs.put(first, a); prefs.put(second, b);
+        check(!first.equals(second), "different tile instances have different keys");
+        check(!first.equals(dev.bennett.codexmeter.wear.TileAccountBinding.key("weekly", 1)), "provider keys isolated");
+        check(a.equals(dev.bennett.codexmeter.wear.TileAccountBinding.resolve(prefs.get(first), state, b)), "bound first ignores watch change");
+        check(b.equals(dev.bennett.codexmeter.wear.TileAccountBinding.resolve(prefs.get(second), state, a)), "second tile independently selects work");
+        WearUsageState removed = new WearUsageState(snapshot(10, 100), 300, "phone", true,
+                List.of(new WearAccount(a, "Personal", true, snapshot(10, 100))), a);
+        check(a.equals(dev.bennett.codexmeter.wear.TileAccountBinding.resolve(b, removed, a)), "removed binding falls back");
+        check(b.equals(dev.bennett.codexmeter.wear.TileAccountBinding.resolve("", state, b)), "unbound follows watch");
+        check("".equals(dev.bennett.codexmeter.wear.TileAccountBinding.resolve(b, null, "")), "missing state safe");
     }
 
     private static AuthTokens tokens(String account) {

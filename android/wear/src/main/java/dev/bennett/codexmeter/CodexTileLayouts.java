@@ -76,11 +76,22 @@ final class CodexTileLayouts {
         boolean compact = isCompactViewport(deviceParameters);
         float gap = compact ? 9f : 14f;
         float inset = compact ? 8f : 14f;
-        LayoutElement content = metricRow(context, window, designLabel, weekly, reset, gap, text,
-                scope);
+        LayoutElementBuilders.Column.Builder copy = new LayoutElementBuilders.Column.Builder()
+                .setWidth(DimensionBuilders.expand())
+                .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_START)
+                .addContent(text.element(designLabel, 12f, TEXT_SECONDARY, LayoutElementBuilders.FONT_WEIGHT_NORMAL))
+                .addContent(text.element(WearGlanceFormat.remainingPercentText(window), 26f, TEXT_PRIMARY, LayoutElementBuilders.FONT_WEIGHT_BOLD))
+                .addContent(text.element(reset, 11f, TEXT_SECONDARY, LayoutElementBuilders.FONT_WEIGHT_NORMAL));
+        String account = WearPreferences.shortAccountLabel(context, 12);
+        if (!account.isEmpty()) copy.addContent(text.element(account, 10f, TEXT_SECONDARY, LayoutElementBuilders.FONT_WEIGHT_NORMAL));
+        LayoutElement content = new LayoutElementBuilders.Row.Builder()
+                .setWidth(DimensionBuilders.expand())
+                .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
+                .addContent(usageDial(context, window, weekly, scope))
+                .addContent(horizontalSpacer(gap)).addContent(copy.build()).build();
         String description = label + ", " + WearGlanceFormat.remainingPercentText(window)
                 + " remaining, " + reset + ". Open Codex Meter.";
-        return card(context, label, leadingInset(content, inset), 0f, 46f, 92f, description);
+        return card(context, label, leadingInset(content, inset), 0f, 64f, 128f, description);
     }
 
     static LayoutElement reset(Context context, DeviceParameters deviceParameters,
@@ -119,7 +130,7 @@ final class CodexTileLayouts {
                 + (credits.isEmpty() ? "" : ", " + credits) + ". Open Codex Meter.";
         return card(context, "reset", compactRow(
                 usageDial(context, dialWindow, weekly, scope),
-                copy.build()), 10f, 46f, 92f, description);
+                copy.build()), 10f, 64f, 128f, description);
     }
 
     static LayoutElement monitor(Context context, DeviceParameters deviceParameters,
@@ -151,7 +162,7 @@ final class CodexTileLayouts {
                 + WearGlanceFormat.focusSummary(snapshot) + ". Open Codex Meter.";
         return card(context, "monitor", compactRow(
                 usageDial(context, focus, focusWeekly, scope), copy),
-                10f, 46f, 92f, description);
+                10f, 64f, 128f, description);
     }
 
     static UsageWindow fiveHour(Context context) {
@@ -360,6 +371,18 @@ final class CodexTileLayouts {
     }
 
     private static ModifiersBuilders.Clickable openClickable(Context context, String idSuffix) {
+        if (context instanceof TileAccountContext && WearPreferences.accountState(context) != null
+                && WearPreferences.accountState(context).accounts.size() > 1) {
+            TileAccountContext tile = (TileAccountContext) context;
+            return new ModifiersBuilders.Clickable.Builder().setId("codex_account_" + idSuffix)
+                    .setOnClick(new ActionBuilders.LaunchAction.Builder().setAndroidActivity(
+                            new ActionBuilders.AndroidActivity.Builder()
+                                    .setPackageName(context.getPackageName())
+                                    .setClassName(TileAccountActivity.class.getName())
+                                    .addKeyToExtraMapping("tile_id", new ActionBuilders.AndroidIntExtra.Builder().setValue(tile.tileId).build())
+                                    .addKeyToExtraMapping("tile_service", new ActionBuilders.AndroidStringExtra.Builder().setValue(tile.service).build())
+                                    .build()).build()).build();
+        }
         ComponentName activity = new ComponentName(context, WearMainActivity.class);
         return new ModifiersBuilders.Clickable.Builder()
                 .setId("codex_open_" + idSuffix)

@@ -6,8 +6,8 @@ import androidx.wear.protolayout.ProtoLayoutScope;
 
 public final class FiveHourTileService extends CodexTileService {
     @Override
-    protected LayoutElement tileLayout(DeviceParameters deviceParameters, ProtoLayoutScope scope) {
-        return CodexTileLayouts.progress(this, deviceParameters, "5-hour",
-                CodexTileLayouts.fiveHour(this), scope);
+    protected LayoutElement tileLayout(android.content.Context context, DeviceParameters deviceParameters, ProtoLayoutScope scope) {
+        return CodexTileLayouts.progress(context, deviceParameters, "5-hour",
+                CodexTileLayouts.fiveHour(context), scope);
     }
 }

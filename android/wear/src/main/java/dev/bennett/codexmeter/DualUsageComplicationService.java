@@ -23,7 +23,9 @@ public final class DualUsageComplicationService extends CodexComplicationService
             return shortText(shortValue, "Codex",
                     "Five-hour and weekly Codex usage remaining");
         } else if (type == ComplicationType.LONG_TEXT) {
-            return longText(surfaceText(preview, WearGlanceFormat.dualLongText(snapshot)),
+            return longText(surfaceText(preview, (fiveHour == null ? "" : "5h " + WearGlanceFormat.remainingPercentText(fiveHour) + " · ")
+                    + (snapshot != null && snapshot.longWindowIsMonthly() ? "30d" : "7d")
+                    + " " + WearGlanceFormat.remainingPercentText(weekly)),
                     "Five-hour and weekly Codex usage remaining");
         }
         return imageForType(type, "Codex usage");

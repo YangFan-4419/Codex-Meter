@@ -62,7 +62,8 @@ public final class WearPreferences {
         return applied;
     }
 
-    public static String selectedAccountId(Context context) { return accountStore(context).selection(); }
+    public static String selectedAccountId(Context context) { return context instanceof TileAccountContext ? ((TileAccountContext) context).selection()
+                : accountStore(context).selection(); }
 
     public static void selectAccount(Context context, String id) {
         if (!accountStore(context).select(id)) return;

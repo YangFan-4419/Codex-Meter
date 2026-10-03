@@ -112,3 +112,9 @@ existing production app to test migration.
 
 No CLI switching, account rotation, proxy, external backend, remote token storage,
 cloud sync, account sharing or arbitrary API-key authentication is included.
+
+## Per-instance Tile accounts
+
+With multiple synced accounts, tap a Codex Tile to bind that tile instance to an account, or choose Follow watch selection. Each binding is keyed by provider class and TileRequest.tileId, survives process restarts, and is removed when the host removes the tile. Other tile instances and the watch-wide selection remain independent. An absent account falls back to watch selection (and its normal phone-default fallback). With one account, tapping opens the app without an account configuration step.
+
+All surfaces still use sanitized phone-synced cached snapshots. No credentials, server requests, periodic work or additional refresh cadence are introduced. Samsung's multi-instance host behavior and round-screen dialog need device verification; persistence tests alone are not evidence of host instance IDs.
